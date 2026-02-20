@@ -55,8 +55,11 @@ static void generate_block(photon_spin_random_t *rng) {
             k++;
         }
         
-        /* Check for collision patterns and perturb if needed */
-        if (rng->elements[k - 1] == rng->elements[k - 2] &&
+        /* Check for collision patterns and perturb if needed.
+         * Note: k is always 5, 10, 15, or 20 here (after the inner loop),
+         * so k-5 is always >= 0 (safe array access) */
+        if (k >= 5 && 
+            rng->elements[k - 1] == rng->elements[k - 2] &&
             rng->elements[k - 3] == rng->elements[k - 4]) {
             rng->elements[k - 1] += mix[i] ^ 81016U;
             rng->elements[k - 2] += mix[i] ^ 297442265U;
