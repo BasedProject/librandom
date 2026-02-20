@@ -1,0 +1,13 @@
+# Compiled binaries
+source/photon_spin_random
+
+# Object files
+*.o
+*.obj
+
+# Build artifacts
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
