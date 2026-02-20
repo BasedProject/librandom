@@ -17,7 +17,7 @@
  *
  * Pros:
  * - Very fast; suitable for gameplay and procedural generation
- * - Good statistical properties; long period (~2^128−1)
+ * - Good statistical properties; long period (~2^128-1)
  * - Deterministic and reproducible across platforms
  *
  * Cons:

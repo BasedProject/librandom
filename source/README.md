@@ -31,7 +31,7 @@ This directory contains C implementations of various random number generators, o
 
 ### XoroShiro
 - **xoroshiro_random.h** / **xoroshiro_random.c** - Fast 128-bit state Xoroshiro PRNG
-- Very fast, good quality, long period (~2^128−1)
+- Very fast, good quality, long period (~2^128-1)
 - Best for: General-purpose randomness, procedural generation
 
 ### Build System
