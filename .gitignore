@@ -1,5 +1,10 @@
 # Compiled binaries
 source/photon_spin_random
+source/xorshift_random
+source/splitmix64
+source/wy_random
+source/pcg_random
+source/xoroshiro_random
 
 # Object files
 *.o

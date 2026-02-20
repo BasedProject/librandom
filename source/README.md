@@ -1,95 +1,151 @@
-# PhotonSpinRandom C Implementation
+# Random Number Generator C Implementations
 
-This directory contains a C implementation of the PhotonSpinRandom generator, originally written in C# by Will Stafford Parsons and distributed in the [unity-helpers](https://github.com/wallstop/unity-helpers) repository.
+This directory contains C implementations of various random number generators, originally written in C# by Will Stafford Parsons and distributed in the [unity-helpers](https://github.com/wallstop/unity-helpers) repository.
 
 ## Files
 
-- **photon_spin_random.h** - Header file with type definitions and function declarations
-- **photon_spin_random.c** - Implementation of the PhotonSpin32 random number generator
-- **Makefile** - Build configuration for easy compilation
-- **donut.c** - ASCII art donut (not a source file, QA artifact)
+### PhotonSpinRandom
+- **photon_spin_random.h** / **photon_spin_random.c** - 20-word ring-buffer RNG inspired by SHISHUA
+- Large state, excellent distribution, huge period (~2^512)
+- Best for: Heavy simulation workloads requiring large streams
 
-## About PhotonSpinRandom
+### XorShift
+- **xorshift_random.h** / **xorshift_random.c** - Classic, extremely fast PRNG
+- Tiny state (32-bit), very fast, modest quality
+- Best for: Effects, particles, jitter, lightweight randomness
 
-PhotonSpin32 is a 20-word ring-buffer random number generator inspired by SHISHUA, designed for high throughput and large period (~2^512). It excels at:
+### SplitMix64
+- **splitmix64.h** / **splitmix64.c** - Fast 64-bit seeding/mixing generator
+- Very fast, great for seed generation and hashing
+- Best for: Seeding other PRNGs, quick mixing, gameplay randomness
 
-- Generating large streams of high-quality random numbers
-- Heavy simulation workloads requiring excellent distribution
-- Deterministic state capture and restoration
+### WyRandom
+- **wy_random.h** / **wy_random.c** - Wyhash-inspired multiply-mix PRNG
+- Fast, good distribution, multiply-based mixing
+- Best for: General gameplay RNG, weight selection, shuffles
 
-**Not suitable for**: Cryptographic or security-sensitive applications.
+### PCG (Permuted Congruential Generator)
+- **pcg_random.h** / **pcg_random.c** - High-quality, small-state PRNG
+- Excellent statistical quality, passes TestU01 BigCrush and PractRand
+- Best for: General gameplay, procedural content, Monte Carlo sampling
+
+### XoroShiro
+- **xoroshiro_random.h** / **xoroshiro_random.c** - Fast 128-bit state Xoroshiro PRNG
+- Very fast, good quality, long period (~2^128−1)
+- Best for: General-purpose randomness, procedural generation
+
+### Build System
+- **Makefile** - Build configuration for all generators
+- **donut.c** - ASCII art donut (QA artifact, not a source file)
 
 ## Building
 
 ### Using Make
 
 ```bash
-make        # Build the test program
-make test   # Build and run tests
+make        # Build all test programs
+make test   # Build and run all tests
 make clean  # Clean build artifacts
 ```
 
 ### Using @BAKE
 
-The source file includes a `@BAKE` statement for use with the [bake](https://github.com/8e8m/bake) build tool:
+Each source file includes a `@BAKE` statement for use with the [bake](https://github.com/8e8m/bake) build tool. Example from photon_spin_random.c:
 
 ```bash
-# The @BAKE command is embedded in photon_spin_random.c:
 # @BAKE cc -O2 -Wall -Wextra -std=c99 -o photon_spin_random photon_spin_random.c -lm @STOP
 ```
-
-To use it with bake, simply run bake in this directory.
 
 ### Manual Compilation
 
 ```bash
 # For testing with built-in test harness:
 cc -O2 -Wall -Wextra -std=c99 -DPHOTON_SPIN_TEST_MAIN -o photon_spin_random photon_spin_random.c -lm
+cc -O2 -Wall -Wextra -std=c99 -DXORSHIFT_TEST_MAIN -o xorshift_random xorshift_random.c -lm
+cc -O2 -Wall -Wextra -std=c99 -DSPLITMIX64_TEST_MAIN -o splitmix64 splitmix64.c -lm
+cc -O2 -Wall -Wextra -std=c99 -DWY_TEST_MAIN -o wy_random wy_random.c -lm
+cc -O2 -Wall -Wextra -std=c99 -DPCG_TEST_MAIN -o pcg_random pcg_random.c -lm
+cc -O2 -Wall -Wextra -std=c99 -DXOROSHIRO_TEST_MAIN -o xoroshiro_random xoroshiro_random.c -lm
 
-# As a library (without test main):
+# As libraries (without test main):
 cc -O2 -Wall -Wextra -std=c99 -c photon_spin_random.c
+# ... etc for other generators
 ```
 
-## Usage Example
+## Usage Examples
 
+### PhotonSpinRandom
 ```c
 #include "photon_spin_random.h"
 
-int main(void) {
-    photon_spin_random_t rng;
-    
-    // Initialize with a seed
-    photon_spin_init(&rng, 42);
-    
-    // Generate random numbers
-    uint32_t rand_uint = photon_spin_next_uint(&rng);
-    float rand_float = photon_spin_next_float(&rng);  // [0, 1)
-    double rand_double = photon_spin_next_double(&rng);  // [0, 1)
-    int32_t rand_range = photon_spin_next_int_range(&rng, 0, 100);  // [0, 100)
-    
-    return 0;
-}
+photon_spin_random_t rng;
+photon_spin_init(&rng, 42);
+uint32_t rand_uint = photon_spin_next_uint(&rng);
+float rand_float = photon_spin_next_float(&rng);  // [0, 1)
 ```
 
-## API Reference
+### XorShift
+```c
+#include "xorshift_random.h"
 
-### Initialization Functions
+xorshift_random_t rng;
+xorshift_init(&rng, 42);
+uint32_t value = xorshift_next_uint(&rng);
+```
 
-- `photon_spin_init(rng, seed)` - Initialize with a single 32-bit seed
-- `photon_spin_init_scalars(rng, seed_a, seed_b, seed_c)` - Initialize with three 32-bit seeds
-- `photon_spin_init_ulongs(rng, seed0, seed1)` - Initialize with two 64-bit seeds
+### SplitMix64
+```c
+#include "splitmix64.h"
 
-### Generation Functions
+splitmix64_t rng;
+splitmix64_init(&rng, 42);
+uint64_t value = splitmix64_next_ulong(&rng);
+```
 
-- `photon_spin_next_uint(rng)` - Generate next 32-bit unsigned integer
-- `photon_spin_next_float(rng)` - Generate next float in [0, 1)
-- `photon_spin_next_double(rng)` - Generate next double in [0, 1)
-- `photon_spin_next_int_range(rng, min, max)` - Generate integer in [min, max)
+### WyRandom
+```c
+#include "wy_random.h"
+
+wy_random_t rng;
+wy_init(&rng, 42);
+uint32_t value = wy_next_uint(&rng);
+```
+
+### PCG
+```c
+#include "pcg_random.h"
+
+pcg_random_t rng;
+pcg_init(&rng, 42);
+uint32_t value = pcg_next_uint(&rng);
+```
+
+### XoroShiro
+```c
+#include "xoroshiro_random.h"
+
+xoroshiro_random_t rng;
+xoroshiro_init(&rng, 42, 12345);
+uint64_t value = xoroshiro_next_ulong(&rng);
+```
+
+## Choosing a Generator
+
+| Generator | Speed | Quality | State Size | Use Case |
+|-----------|-------|---------|------------|----------|
+| XorShift | Fastest | Fair | 4 bytes | Particles, effects, simple randomness |
+| SplitMix64 | Very Fast | Very Good | 8 bytes | Seeding, mixing, quick generation |
+| WyRandom | Very Fast | Very Good | 8 bytes | General gameplay, hashing-like uses |
+| PCG | Fast | Excellent | 16 bytes | High-quality gameplay, simulations |
+| XoroShiro | Very Fast | Very Good | 16 bytes | General-purpose, procedural gen |
+| PhotonSpin | Fast | Excellent | 80 bytes | Large streams, heavy simulations |
+
+**Note**: None of these generators are cryptographically secure. Do not use for security-sensitive applications.
 
 ## License
 
 MIT License - Copyright (c) 2025 wallstop
 
-Original C# implementation from: https://github.com/wallstop/unity-helpers
+Original C# implementations from: https://github.com/wallstop/unity-helpers
 
 Converted to C for the librandom project.
