@@ -1,5 +1,6 @@
 #ifndef RANDOM_FLOAT_H_
 #define RANDOM_FLOAT_H_
+
 #include <stdint.h>
 
 float  random_float(uint32_t random);
