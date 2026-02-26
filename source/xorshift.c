@@ -1,3 +1,4 @@
+/* https://mit-license.org/ - Copyright 2025 wallstop */
 #include "xorshift.h"
 
 static inline random_xorshift_t random_xorshift_normalize(random_xorshift_t random) {

@@ -1,3 +1,4 @@
+/* https://mit-license.org/ - Copyright 2025 wallstop */
 #include "romuduo.h"
 #include "ro.h"
 

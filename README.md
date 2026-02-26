@@ -6,6 +6,25 @@ This code is generally ripped and written for C.
 
 see [Here](https://github.com/wallstop/unity-helpers) in `Runtime/Core/Random`.
 
+- [librandom](#librandom)
+  * [Generalized](#generalized)
+  * [Headers](#headers)
+    + [float.h](#floath)
+    + [combine.h](#combineh)
+    + [lcg.h](#lcgh)
+    + [lcg2.h](#lcg2h)
+    + [pcg.h](#pcgh)
+    + [xorshift.h](#xorshifth)
+    + [xoroshiro.h](#xoroshiroh)
+    + [splitmix.h](#splitmixh)
+    + [wy.h](#wyh)
+    + [photon.h](#photonh)
+    + [romuduo.h](#romuduoh)
+    + [mt19937.h](#mt19937h)
+  * [Copyright?](#copyright-)
+    + [librandom License](#librandom-license)
+    + [Wallstop MIT License](#wallstop-mit-license)
+
 ## Generalized
 
 Interface:
@@ -36,16 +55,17 @@ Replace psued with your algorithm of choice.
 
 Only some support psued64:
 
-| Header      | 64 Support | Shape                  |
-| :-----      | :--------- | :----                  |
-| lcg.h       | No         | uint32\_t              |
-| pcg.h       | No         | uint64\_t (a,b)        |
-| xorshift.h  | No         | uint32\_t              |
-| xoroshiro.h | Yes        | uint64\_t (a,b)        |
-| splitmix.h  | Yes        | uint64\_t              |
-| wy.h        | Yes        | uint64\_t              |
-| photon.h    | No         | Configurable at library compile time, see header. |
-| romuduo.h   | No         | uint64\_t (a,b)        |
+| Header																					 | 64 Support | Shape                  |
+| :-----																					 | :--------- | :----                  |
+| [lcg.h](https://github.com/BasedProject/librandom/blob/master/source/lcg.h)				 | No         | uint32\_t              |
+| [lcg2.h](https://github.com/BasedProject/librandom/blob/master/source/lcg2.h)				 | Yes        | uint64\_t              |
+| [pcg.h](https://github.com/BasedProject/librandom/blob/master/source/pcg.h)				 | No         | uint64\_t (a,b)        |
+| [xorshift.h](https://github.com/BasedProject/librandom/blob/master/source/xorshift.h)		 | No         | uint32\_t              |
+| [xoroshiro.h](https://github.com/BasedProject/librandom/blob/master/source/xoroshiro.h)	 | Yes        | uint64\_t (a,b)        |
+| [splitmix.h](https://github.com/BasedProject/librandom/blob/master/source/splitmix.h)		 | Yes        | uint64\_t              |
+| [wy.h](https://github.com/BasedProject/librandom/blob/master/source/wy.h)					 | Yes        | uint64\_t              |
+| [photon.h](https://github.com/BasedProject/librandom/blob/master/source/photon.h)			 | No         | Configurable at library compile time, see header. |
+| [romuduo.h](https://github.com/BasedProject/librandom/blob/master/source/romuduo.h)		 | No         | uint64\_t (a,b)        |
 
 None of these should be used in security sensitive contexts unless marked otherwise.
 
@@ -53,20 +73,20 @@ None of these should be used in security sensitive contexts unless marked otherw
 
 This may be over in some places, but should cover basically everything.
 
-### float.h
+### [float.h](https://github.com/BasedProject/librandom/blob/master/source/float.h)
 
 Do primitive conversion to float.
 
     float  random_float(uint32_t random);
     double random_double(uint64_t random);
 
-### combine.h
+### [combine.h](https://github.com/BasedProject/librandom/blob/master/source/combine.h)
 
 You may want to combine two uint32s into a uint64:
 
     uint64_t random_combine(uint32_t low, uint32_t high);
 
-### lcg.h
+### [lcg.h](https://github.com/BasedProject/librandom/blob/master/source/lcg.h)
 
     random_lcg_t random_lcg_init(uint32_t Initial State)
     uint32_t random_lcg32(random_lcg_t * Random Pointer)
@@ -91,7 +111,22 @@ Example:
     random_lcg_t r[1] = {random_lcg_init(initial)};
     uint32_t rand = random_lcg32(r);
 
-### pcg.h
+### [lcg2.h](https://github.com/BasedProject/librandom/blob/master/source/lcg2.h)
+
+    random_lcg2_t random_lcg2_init(uint64_t Initial State)
+    uint32_t random_lcg232(random_lcg2_t * Random Pointer)
+    uint64_t random_lcg264(random_lcg2_t * Random Pointer)
+
+Similiar to lcg.h, except employs the 64-bit LCG described [here](https://nuclear.llnl.gov/CNP/rng/rngman/node4.html).
+
+Per Bret R. Beck and Eugene D. Brooks III.
+
+Example:
+
+    random_lcg2_t r[1] = {random_lcg2_init(initial)};
+    uint64_t rand = random_lcg264(r);
+
+### [pcg.h](https://github.com/BasedProject/librandom/blob/master/source/pcg.h)
 
     random_pcg_t random_pcg_init(uint64_t Initial State, Step) [note: RANDOM_PCG_PRIME made available for your benefit for stepper.]
     uint32_t random_pcg32(random_pcg_t * Random Pointer)
@@ -115,7 +150,7 @@ Example:
     random_pcg_t r[1] = {random_pcg_init(initial, RANDOM_PCG_PRIME)};
     uint32_t rand = random_pcg32(r);
 
-### xorshift.h
+### [xorshift.h](https://github.com/BasedProject/librandom/blob/master/source/xorshift.h)
 
     random_xorshift_t random_xorshift_init(uint32_t Initial State)
     uint32_t random_xorshift32(random_xorshift_t * Random Pointer)
@@ -138,9 +173,9 @@ Do not use in simulations or systems sensitive to subtle bias.
 Example:
 
     random_xorshift_t r[1] = {random_xorshift_init(initial)};
-    uint32_t rand = random_xorshift(r);
+    uint32_t rand = random_xorshift32(r);
 
-### xoroshiro.h
+### [xoroshiro.h](https://github.com/BasedProject/librandom/blob/master/source/xoroshiro.h)
 
     random_xoroshiro_t random_xoroshiro_init(uint64_t Initial State Part 1, Initial State Part 2)
     uint32_t random_xoroshiro32(random_xoroshiro_t * Random Pointer)
@@ -164,7 +199,7 @@ Example:
     random_xoroshiro_t r[1] = {random_xoroshiro_init(initial_a, initial_b)};
     uint32_t rand = random_xoroshiro32(r);
 
-### splitmix.h
+### [splitmix.h](https://github.com/BasedProject/librandom/blob/master/source/splitmix.h)
 
     random_splitmix_t random_splitmix_init(uint64_t Initial State)
     uint32_t random_splitmix32(random_splitmix_t * Random Pointer)
@@ -187,7 +222,7 @@ Example:
     random_splitmix_t r[1] = {random_splitmix_init(initial)};
     uint32_t rand = random_splitmix32(r);
 
-### wy.h
+### [wy.h](https://github.com/BasedProject/librandom/blob/master/source/wy.h)
 
     random_wy_t random_wy_init(uint32_t Initial State)
     uint32_t random_wy32(random_wy_t * Random Pointer)
@@ -210,9 +245,10 @@ Use in general gameplay RNG, weight selection, shuffles, seed generation.
 Example:
 
     random_wy_t r[1] = {random_wy_init(initial)};
-    uint32_t rand = random_wy64(r);
+    uint32_t rand1 = random_wy32(r);
+	uint64_t rand2 = random_wy64(r);
 
-### photon.h
+### [photon.h](https://github.com/BasedProject/librandom/blob/master/source/photon.h)
 The reason this library exists.
 
     random_photon_t random_photon_init(uint64_t Initial State 1, Initial State 2)
@@ -237,9 +273,9 @@ Cons: Higher per-instance memory (~20×4 bytes).
 Example:
 
     random_photon_t r[1] = {random_photon_init(initial_a, initial_b)};
-    uint32_t rand = random_photon64(r);
+    uint32_t rand = random_photon32(r);
 
-### romuduo.h
+### [romuduo.h](https://github.com/BasedProject/librandom/blob/master/source/romuduo.h)
 
     random_romuduo_t random_romuduo_init(uint64_t Initial State 1, Initial State 2)
     uint32_t random_romuduo32(random_romuduo_t * Random Pointer)
@@ -259,4 +295,51 @@ Cons: Relatively newer family; choose proven options if organizational policy re
 Example:
 
     random_romuduo_t r[1] = {random_romuduo_init(initial_a, initial_b)};
-    uint32_t rand = random_romuduo64(r);
+    uint32_t rand = random_romuduo32(r);
+
+### [mt19937.h](https://github.com/BasedProject/librandom/blob/master/source/mt19937.h)
+`BSD-3-clause -- Copyright 1997 - 2002, Makoto Matsumoto and Takuji Nishimura -- All rights reserved.` 
+
+See [mt19937.c](https://github.com/BasedProject/librandom/blob/master/source/mt19937.c) for full licensing.
+
+    random_mt19937_t random_mt19937_init(uint32_t Initial State)
+    uint32_t random_mt1993732(random_mt19937_t * Random Pointer)
+
+See [Here.](https://en.wikipedia.org/wiki/Mersenne_Twister)
+
+Super large period of 2^19937-1. Based on Mersenne primes.
+
+Pros: Generally robust.
+ Good for simulations.
+ 
+Cons: like all other PRNGs here, not for cryptographic use.
+ Not the one true solution to PRNGs, but close enough.
+ 
+Example:
+
+    random_mt19937_t r[1] = {random_mt19937_init(initial)};
+    uint32_t rand = random_mt1993732(r);
+
+## Copyright?
+
+All of these headers are marked as [`MIT License - Copyright 2025 wallstop`](https://mit-license.org/) unless otherwise specified or applicable to some larger domain, in which case the notice could be prunable. (i.e. very well known algorithms released to the public domain.) The text in this document is generally divined the initial project.
+
+### librandom License
+
+[librandom](https://github.com/BasedProject/librandom) was composed by [Emil Williams](https://github.com/8e8m) for the benefit of noone.
+
+Any source within the bounds of this project excluding already clearly marked code, is marked [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
+There is no warranty under any circumstance, use librandom at your own detriment.
+
+![(CC)](https://mirrors.creativecommons.org/presskit/icons/cc.svg)
+![(0)](https://mirrors.creativecommons.org/presskit/icons/zero.svg)
+
+### Wallstop MIT License
+
+Copyright © 2025 wallstop
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

@@ -1,3 +1,4 @@
+/* https://mit-license.org/ - Copyright 2025 wallstop */
 #include "lcg.h"
 
 random_lcg_t random_lcg_init(uint32_t init) {

@@ -1,3 +1,4 @@
+/* https://mit-license.org/ - Copyright 2025 wallstop */
 #include "photon.h"
 #include "ro.h"
 

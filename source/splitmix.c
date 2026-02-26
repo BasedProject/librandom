@@ -1,3 +1,4 @@
+/* https://mit-license.org/ - Copyright 2025 wallstop */
 #include "splitmix.h"
 
 random_splitmix_t random_splitmix_init(uint64_t init) {
