@@ -26,7 +26,9 @@ uint64_t mum(uint64_t x, uint64_t y) {
 }
 
 random_wy_t random_wy_init(uint32_t init) {
-  return init;
+  random_wy_t wy = init;
+  (void) random_wy64(&wy);
+  return wy;
 }
 
 uint32_t random_wy32(random_wy_t * randomp) {

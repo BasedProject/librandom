@@ -4,8 +4,9 @@
 
 random_pcg_t random_pcg_init(uint64_t init, uint64_t increment) {
   random_pcg_t pcg;
-  pcg.a = init;
+  pcg.a = init + increment;
   pcg.b = increment;
+  (void) random_pcg32(&pcg);
   return pcg;
 }
 
