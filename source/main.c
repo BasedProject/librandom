@@ -13,57 +13,57 @@
 
 #define GENERAL_FORMAT "%16s %32s %2d (%d)\t"
 
-#define test(x, format, n, ...) do {                                            \
-    x##_t y[1] = {x##_init(__VA_ARGS__)};                                       \
-    printf(GENERAL_FORMAT, "normal", STRINGIFY(x##_t), n, __VA_ARGS__);         \
-    for (int i = 0; i < NUMBER_OF_VALUES; ++i) {                                \
-      printf(format " ", x##n(y));                                              \
-    }                                                                           \
-    printf("\n");                                                               \
+#define WIDTH "20"
+
+#define test(x, n, ...) do {                                            \
+    x##_t y[1] = {x##_init(__VA_ARGS__)};                               \
+    printf(GENERAL_FORMAT, "normal", STRINGIFY(x##_t), n, __VA_ARGS__); \
+    for (int i = 0; i < NUMBER_OF_VALUES; ++i) {                        \
+      printf(n == 32 ? "%" WIDTH "u " : "%" WIDTH "lu ", x##n(y));      \
+    }                                                                   \
+    printf("\n");                                                       \
   } while (0)
 
-#define test_wrap(x, wrap, format, n, ...) do {                                 \
+#define test_wrap(x, wrap, n, ...) do {                                         \
     x##_t y[1] = {x##_init(__VA_ARGS__)};                                       \
     printf(GENERAL_FORMAT, STRINGIFY(wrap), STRINGIFY(x##_t), n, __VA_ARGS__);  \
     for (int i = 0; i < NUMBER_OF_VALUES; ++i) {                                \
-      printf(format " ", wrap(x##n(y)));                                        \
+      printf("%" WIDTH "f ", wrap(x##n(y)));                                    \
     }                                                                           \
     printf("\n");                                                               \
   } while (0)
 
-#define test_combined(x, format, n, ...) do {                                   \
-    x##_t y[1] = {x##_init(__VA_ARGS__)};                                       \
-    printf(GENERAL_FORMAT, "combined", STRINGIFY(x##_t), n, __VA_ARGS__);       \
-    for (int i = 0; i < NUMBER_OF_VALUES; ++i) {                                \
-      printf(format " ", random_combine(x##n(y), x##n(y)));                     \
-    }                                                                           \
-    printf("\n");                                                               \
+#define test_combined(x, n, ...) do {                                     \
+    x##_t y[1] = {x##_init(__VA_ARGS__)};                                 \
+    printf(GENERAL_FORMAT, "combined", STRINGIFY(x##_t), n, __VA_ARGS__); \
+    for (int i = 0; i < NUMBER_OF_VALUES; ++i) {                          \
+      printf("%" WIDTH "lu ", random_combine(x##n(y), x##n(y)));          \
+    }                                                                     \
+    printf("\n");                                                         \
   } while (0)
 
 
-#define WIDTH "20"
-
-#define fulltest(n, x, ...) do {                                        \
-    test(random_##x, "%" WIDTH "lu", n, __VA_ARGS__);                   \
-    if (n == 32)                                                        \
-    {test_combined(random_##x, "%" WIDTH "lu", n, __VA_ARGS__); }       \
-    test_wrap(random_##x, random_float, "%" WIDTH "f", n, __VA_ARGS__); \
+#define fulltest(n, x, ...) do {                         \
+    test(random_##x, n, __VA_ARGS__);                    \
+    if (n == 32)                                         \
+    {test_combined(random_##x, n, __VA_ARGS__); }        \
+    test_wrap(random_##x, random_float, n, __VA_ARGS__); \
   } while (0)
 
 #define fulltest32(x, ...) fulltest(32, x, __VA_ARGS__)
-#define fulltest64(x, ...) do {                                                 \
-    fulltest(32, x, __VA_ARGS__);                                               \
-    fulltest(64, x, __VA_ARGS__);                                               \
+#define fulltest64(x, ...) do {   \
+    fulltest(32, x, __VA_ARGS__); \
+    fulltest(64, x, __VA_ARGS__); \
   } while (0)
 
 
-#define selectable(x, bit, ...)                                 \
-  if (generator == enum_##x) {                                  \
-    random_##x##_t r[1] = {random_##x##_init(__VA_ARGS__)};     \
-    while (1) {                                                 \
-      uint##bit##_t random = random_##x##bit(r);                \
-      fwrite(&random, sizeof(uint##bit##_t), 1, stdout);        \
-    }                                                           \
+#define selectable(x, bit, ...)                             \
+  if (generator == enum_##x) {                              \
+    random_##x##_t r[1] = {random_##x##_init(__VA_ARGS__)}; \
+    while (1) {                                             \
+      uint##bit##_t random = random_##x##bit(r);            \
+      fwrite(&random, sizeof(uint##bit##_t), 1, stdout);    \
+    }                                                       \
   }
 
 int main(int ac, char ** av) {
@@ -104,6 +104,16 @@ done
     uint64_t initial = --ac ? atoll(*(++av)) : 0;
     #define XA initial
     #define XB initial
+    #define X(x,y,...) fulltest##y(x, __VA_ARGS__);
+    #include "librandom_x.h"
+    printf("SEMI 1\n");
+    #define XA initial
+    #define XB 0
+    #define X(x,y,...) fulltest##y(x, __VA_ARGS__);
+    #include "librandom_x.h"
+    printf("SEMI 2\n");
+    #define XB initial
+    #define XA 0
     #define X(x,y,...) fulltest##y(x, __VA_ARGS__);
     #include "librandom_x.h"
     return 0;

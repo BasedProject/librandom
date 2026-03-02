@@ -16,8 +16,10 @@ random_xoroshiro_t random_xoroshiro_init(uint64_t init_a, uint64_t init_b) {
   xoroshiro.b = init_b;
   random_xoroshiro_normalize(&xoroshiro);
   /* two steps to ensure strong initial randomness */
-  /* [0..1] ~= seed */
+  /* [0..1] ~= seed when 0 */
   random_xoroshiro64(&xoroshiro);
+  random_xoroshiro64(&xoroshiro);
+  /* [2] = extremely poor (N*1025) when (N 0) */
   random_xoroshiro64(&xoroshiro);
   return xoroshiro;
 }
