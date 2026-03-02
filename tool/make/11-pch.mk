@@ -7,7 +7,7 @@ HEADER.orig := $(HEADER.orig:${OBJECT.dir}/%=%)
 
 HEADER.pch := $(addprefix ${OBJECT.dir}/, ${HEADER.orig})
 
-ifeq (${CC},gcc)
+ifeq (${IS_GCC},1)
         HEADER.pch := $(addsuffix .gch,${HEADER.pch})
 else
         HEADER.pch := $(addsuffix .pch,${HEADER.pch})

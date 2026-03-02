@@ -16,6 +16,9 @@ random_romuduo_t random_romuduo_init(uint64_t init_a, uint64_t init_b) {
   romuduo.a = init_a;
   romuduo.b = init_b;
   random_romuduo_normalize(&romuduo);
+  /* one step to ensure strong initial randomness */
+  /* [0] ~= seed */
+  random_romuduo32(&romuduo);
   return romuduo;
 }
 

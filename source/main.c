@@ -82,7 +82,7 @@ for i in $(seq 0 8); do
   ./random.out select $i | dd if=/dev/stdin bs=4 count=4 of=/dev/stdout 2> /dev/null | hexdump -e '16/1 "%.2x" "\n"'
 done
 # Full Battery.
-for i in $(seq 0 8); do
+for i in $(seq 0 9); do
  echo "Proceeding with test $i..."
  time ./random.out select $i | dieharder -a -Y 1 -g 200
 done

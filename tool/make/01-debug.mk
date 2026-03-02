@@ -1,17 +1,22 @@
-DEBUG      ?= 0
-SANITIZE   ?= 0
-VECTORIZED ?= 0
+DEBUG          ?= 0
+SANITIZE       ?= 0
+VECTORIZED_ALL ?= 0
+VECTORIZED     ?= 0
 
-ifeq (${DEBUG},1)
+ifneq (${SANITIZE},0)
+        DEBUG := 1
+endif
+
+ifneq (${DEBUG},0)
         LFLAGS   += --debug --trace
         YFLAGS   += --debug
         # there's gcc15 -flto-incremental
         # for clang see https://clang.llvm.org/docs/ThinLTO.html
-        ifeq (${CC},clang)
+        ifeq (${IS_CLANG},1)
                 CFLAGS   += -flto=thin -glldb
                 CXXFLAGS += -flto=thin -glldb
         else
-                ifeq (${CC},gcc)
+                ifeq (${IS_GCC},1)
                         CFLAGS   += -pg -ggdb
                         CXXFLAGS += -pg -ggdb
                 else
@@ -22,23 +27,35 @@ ifeq (${DEBUG},1)
         CFLAGS   += -fno-inline -Wall -Wextra -Wpedantic -Wshadow -Wundef -fno-omit-frame-pointer
         CXXFLAGS += -fno-inline -Wall -Wextra -Wpedantic -Wshadow -Wundef -fno-omit-frame-pointer
 else
-        CFLAGS   += -flto=auto -ftree-vectorize -march=x86-64 -mtune=generic
-        CXXFLAGS += -flto=auto -ftree-vectorize -march=x86-64 -mtune=generic
+        ifeq (${IS_GCC},1)
+                CFLAGS += -flto=auto
+                CXXFLAGS += -flto=auto
+        else
+                CFLAGS   += -flto
+                CXXFLAGS += -flto
+        endif
+        CFLAGS   += -ftree-vectorize -march=x86-64 -mtune=generic
+        CXXFLAGS += -ftree-vectorize -march=x86-64 -mtune=generic
         CPPFLAGS += -DNDEBUG
 endif
 
-ifeq (${SANITIZE},1)
-        ifeq (${CC},clang)
-                CFLAGS   += -fvisibility=hidden -fsanitize=address,leak,undefined,bounds,cfi
-                CXXFLAGS += -fvisibility=hidden -fsanitize=address,leak,undefined,bounds,cfi
+ifneq (${SANITIZE},0)
+        ifeq (${IS_CLANG},1)
+                CFLAGS   += -fvisibility=hidden -fsanitize=address,leak,undefined,bounds
+                CXXFLAGS += -fvisibility=hidden -fsanitize=address,leak,undefined,bounds
+                ifeq (${PLATFORM},Linux)
+                        # Didn't work on Darwin with Clang-19, assuming Linux specific.
+                        CFLAGS   += -fsanitize=cfi
+                        CXXFLAGS += -fsanitize=cfi
+                endif
         else
                 CFLAGS   += -fsanitize=address,leak,undefined
                 CXXFLAGS += -fsanitize=address,leak,undefined
         endif
 endif
 
-ifeq (${VECTORIZED_ALL},1)
-        ifeq (${CC},clang)
+ifneq (${VECTORIZED_ALL},0)
+        ifeq (${IS_CLANG},1)
           CFLAGS   += -Rpass=loop-vectorize -Rpass-missed=loop-vectorize
           CXXFLAGS += -Rpass=loop-vectorize -Rpass-missed=loop-vectorize
         else
@@ -46,8 +63,8 @@ ifeq (${VECTORIZED_ALL},1)
           CXXFLAGS += -fopt-info-vec-all
         endif
 else
-        ifeq (${VECTORIZED},1)
-                ifeq (${CC},clang)
+        ifneq (${VECTORIZED},0)
+                ifeq (${IS_CLANG},1)
                         CFLAGS   += -Rpass=loop-vectorize
                         CXXFLAGS += -Rpass=loop-vectorize
                 else

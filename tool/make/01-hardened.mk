@@ -1,6 +1,14 @@
 ifneq (${DEBUG},1)
-        CFLAGS   += -ftrivial-auto-var-init=zero -fPIC -fstack-protector-strong -fstack-clash-protection
-        CXXFLAGS += -ftrivial-auto-var-init=zero -fPIC -fstack-protector-strong -fstack-clash-protection
-        LDFLAGS  += -pie -Wl,-z,relro,-z,now
+        CFLAGS   += -fstack-protector-strong
+        CXXFLAGS += -fstack-protector-strong
+        ifneq (${PLATFORM},Mac)
+                CFLAGS   += -fstack-clash-protection
+                CXXFLAGS += -fstack-clash-protection
+                ifeq (${IS_GCC},1)
+                        CFLAGS   += -fPIE -pie
+                        CXXFLAGS += -fPIE -pie
+                endif
+                LDFLAGS  += -Wl,-z,relro,-z,now
+        endif
         CPPFLAGS += -D_FORTIFY_SOURCE=3
 endif
