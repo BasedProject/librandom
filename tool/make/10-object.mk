@@ -6,7 +6,7 @@ SOURCE.orig := ${SOURCE.orig:.c=.o}
 SOURCE.orig := ${SOURCE.orig:.cpp=.o}
 SOURCE.orig := ${SOURCE.orig:.c++=.o}
 SOURCE.orig := ${SOURCE.orig:.C=.o}
-OBJECT.orig := $(addprefix ${OBJECT.dir}/, ${SOURCE.orig})
+OBJECT.orig += $(addprefix ${OBJECT.dir}/, ${SOURCE.orig})
 
 CPPFLAGS += -I${OBJECT.dir}
 

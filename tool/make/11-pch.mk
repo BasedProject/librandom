@@ -1,3 +1,11 @@
+# This header at this moment does nothing.
+
+# I was under the impression that pch would flattenable. However this setup is invalid.
+#  You either need to manhandle the compiler (every include needs to be in command line)
+#   OR have thing be inlined in the source tree (not happening.)
+
+ifeq (1,)
+
 HEADER.pch.filter ?=
 HEADER.orig.cxx := $(wildcard ${SOURCE.dir}/*.H ${OBJECT.dir}/*.H ${SOURCE.dir}/*.hpp ${OBJECT.dir}/*.hpp ${SOURCE.dir}/*.h++ ${OBJECT.dir}/*.h++)
 HEADER.orig.c   := $(wildcard ${SOURCE.dir}/*.h ${OBJECT.dir}/*.h)
@@ -50,3 +58,5 @@ ${OBJECT.dir}/%.hpp.pch: %.h++
 ${OBJECT.dir}/%.hpp.gch: %.h++
 	@echo "GCH	$<"
 	@${COMPILE.cpp} ${PCHFLAGS} -x c-header -o $@ $<
+
+endif

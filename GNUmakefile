@@ -15,7 +15,7 @@ SOURCE.dir := source
 OBJECT.dir := object
 
 MAKE.dir := tool/make
-MAKE.filter :=
+MAKE.filter := 03-peru.mk
 
 ## 00-compiler.mk
 
