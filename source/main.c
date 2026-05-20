@@ -11,111 +11,48 @@
 #define _STRINGIFY(...) # __VA_ARGS__
 #define STRINGIFY(...) _STRINGIFY(__VA_ARGS__)
 
-#define GENERAL_FORMAT "%16s %32s %2d (%d)\t"
-
-#define WIDTH "20"
-
-#define test(x, n, ...) do {                                            \
-    x##_t y[1] = {x##_init(__VA_ARGS__)};                               \
-    printf(GENERAL_FORMAT, "normal", STRINGIFY(x##_t), n, __VA_ARGS__); \
-    for (int i = 0; i < NUMBER_OF_VALUES; ++i) {                        \
-      printf(n == 32 ? "%" WIDTH "u " : "%" WIDTH "lu ", x##n(y));      \
-    }                                                                   \
-    printf("\n");                                                       \
-  } while (0)
-
-#define test_wrap(x, wrap, n, ...) do {                                         \
-    x##_t y[1] = {x##_init(__VA_ARGS__)};                                       \
-    printf(GENERAL_FORMAT, STRINGIFY(wrap), STRINGIFY(x##_t), n, __VA_ARGS__);  \
-    for (int i = 0; i < NUMBER_OF_VALUES; ++i) {                                \
-      printf("%" WIDTH "f ", wrap(x##n(y)));                                    \
-    }                                                                           \
-    printf("\n");                                                               \
-  } while (0)
-
-#define test_combined(x, n, ...) do {                                     \
-    x##_t y[1] = {x##_init(__VA_ARGS__)};                                 \
-    printf(GENERAL_FORMAT, "combined", STRINGIFY(x##_t), n, __VA_ARGS__); \
-    for (int i = 0; i < NUMBER_OF_VALUES; ++i) {                          \
-      printf("%" WIDTH "lu ", random_combine(x##n(y), x##n(y)));          \
-    }                                                                     \
-    printf("\n");                                                         \
-  } while (0)
-
-
-#define fulltest(n, x, ...) do {                         \
-    test(random_##x, n, __VA_ARGS__);                    \
-    if (n == 32)                                         \
-    {test_combined(random_##x, n, __VA_ARGS__); }        \
-    test_wrap(random_##x, random_float, n, __VA_ARGS__); \
-  } while (0)
-
-#define fulltest32(x, ...) fulltest(32, x, __VA_ARGS__)
-#define fulltest64(x, ...) do {   \
-    fulltest(32, x, __VA_ARGS__); \
-    fulltest(64, x, __VA_ARGS__); \
-  } while (0)
-
-
-#define selectable(x, bit, ...)                             \
-  if (generator == enum_##x) {                              \
-    random_##x##_t r[1] = {random_##x##_init(__VA_ARGS__)}; \
-    while (1) {                                             \
-      uint##bit##_t random = random_##x##bit(r);            \
-      fwrite(&random, sizeof(uint##bit##_t), 1, stdout);    \
-    }                                                       \
-  }
-
 int main(int ac, char ** av) {
-  enum {
-    #define X(x,y,...) enum_##x,
-    #include "librandom_x.h"
-    LAST,
-  };
-  char * list[] = {
-    #define X(x,y,...) STRINGIFY(x),
-    #include "librandom_x.h"
-  };
-  #if 0
-# generates the initial signature for each algo.
-for i in $(seq 0 8); do
-  ./random.out select $i | dd if=/dev/stdin bs=4 count=4 of=/dev/stdout 2> /dev/null | hexdump -e '16/1 "%.2x" "\n"'
-done
-# Full Battery.
-for i in $(seq 0 9); do
- echo "Proceeding with test $i..."
- time ./random.out select $i | dieharder -a -Y 1 -g 200
-done
-  #endif
-  if (ac-1 && strstr("select", av[1])) {
-    --ac, ++av;
-    uint32_t generator = --ac > 0 ? atoi(*(++av)) : 0;
-    uint64_t a = --ac > 0 ? atoll(*(++av)) : 0;
-    uint64_t b = --ac > 0 ? atoll(*(++av)) : 0;
-    #define XA a
-    #define XB b
-    #define X(x,y,...) selectable(x, y, __VA_ARGS__);
-    #include "librandom_x.h"
-  } else if (ac-1 && strstr("list", av[1])) {
-    for (int i = 0; i < LAST; ++i) {
-      printf("%3d | %-16s |\n", i, list[i]);
-    }
-  } else {
-    uint64_t initial = --ac ? atoll(*(++av)) : 0;
-    #define XA initial
-    #define XB initial
-    #define X(x,y,...) fulltest##y(x, __VA_ARGS__);
-    #include "librandom_x.h"
-    printf("SEMI 1\n");
-    #define XA initial
-    #define XB 0
-    #define X(x,y,...) fulltest##y(x, __VA_ARGS__);
-    #include "librandom_x.h"
-    printf("SEMI 2\n");
-    #define XB initial
-    #define XA 0
-    #define X(x,y,...) fulltest##y(x, __VA_ARGS__);
-    #include "librandom_x.h"
-    return 0;
-  }
+# define zeros(al, format, type) do {                                         \
+    al##_t al[1] = {al##_init(NULL, 0)};                                \
+    printf("%-10s: ", STRINGIFY(al));                                   \
+    for (size_t i = 0; i < NUMBER_OF_VALUES; ++i)                       \
+    {printf(format "%s", al##_##type(al), i+1==NUMBER_OF_VALUES ? "\n" : " ");} \
+  } while (0);
+  /* s32 */
+  zeros(lcg,       "%12d", s32);
+  zeros(lcg2,      "%12d", s32);
+  zeros(mt19937,   "%12d", s32);
+  zeros(pcg,       "%12d", s32);
+  zeros(photon,    "%12d", s32);
+  zeros(romuduo,   "%12d", s32);
+  zeros(splitmix,  "%12d", s32);
+  zeros(wy,        "%12d", s32);
+  zeros(xoroshiro, "%12d", s32);
+  zeros(xorshift,  "%12d", s32);
+  /* u64 */
+  zeros(lcg,       "%20ld", u64);
+  zeros(lcg2,      "%20ld", u64);
+  zeros(mt19937,   "%20ld", u64);
+  zeros(pcg,       "%20ld", u64);
+  zeros(photon,    "%20ld", u64);
+  zeros(romuduo,   "%20ld", u64);
+  zeros(splitmix,  "%20ld", u64);
+  zeros(wy,        "%20ld", u64);
+  zeros(xoroshiro, "%20ld", u64);
+  zeros(xorshift,  "%20ld", u64);
+  /* floats */
+  zeros(lcg,       "%f", f32);
+  zeros(lcg2,      "%f", f32);
+  zeros(mt19937,   "%f", f32);
+  zeros(pcg,       "%f", f32);
+  zeros(photon,    "%f", f32);
+  zeros(romuduo,   "%f", f32);
+  zeros(splitmix,  "%f", f32);
+  zeros(wy,        "%f", f32);
+  zeros(xoroshiro, "%f", f32);
+  zeros(xorshift,  "%f", f32);
+
+  printf("grand %f\n", grand_f32());
+  printf("grand %f\n", grand_f32());
+  printf("grand %f\n", grand_range_f32(2,1000));
 }

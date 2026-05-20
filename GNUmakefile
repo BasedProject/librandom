@@ -6,7 +6,7 @@ TARGET := $(shell basename $$PWD).out
 ## make.mk
 # commented assignments are overrides and are otherwise reasonable defaults.
 
-CFLAGS   := -std=c23 -O2 -pthread
+CFLAGS   := -std=c23 -O2 -pthread -fPIC -Iinclude
 CXXFLAGS := -std=c++20 -O2 -pthread
 CPPFLAGS := -D_GNU_SOURCE -Wno-format
 LDFLAGS  := -lm
