@@ -51,15 +51,15 @@ MT19937 is the most generally robust and widely used (for insecure means) psuedo
 Global Interface:
 
 ```c
-    #define GRAND photon // Not required. This is the default.
-	#include <random.h>
-    
-	grand_init(NULLABLE void * Initial State, size_t Length); // Not required.
-	TYPE grand(void); // (<native> type of algo., u32 for photon)
-	TYPE grand_TYPE(void);
-	TYPE grand_range_TYPE(rng_t * rng, TYPE small, TYPE big);
-	// range works for except 128-bit types. Inclusive.
-	// We use Lemire's unbiased multiply-high method for integer types.
+#define GRAND photon // Not required. This is the default.
+#include <random.h>
+
+grand_init(NULLABLE void * Initial State, size_t Length); // Not required.
+TYPE grand(void); // (<native> type of algo., u32 for photon)
+TYPE grand_TYPE(void);
+TYPE grand_range_TYPE(rng_t * rng, TYPE small, TYPE big);
+// range works for except 128-bit types. Inclusive.
+// We use Lemire's unbiased multiply-high method for integer types.
 ```
 
 
@@ -89,10 +89,10 @@ some algos will operate like ALIGN=64, with their minimum call threshold being u
 ### [lcg.h](https://github.com/BasedProject/librandom/blob/master/source/lcg.h)
 
 ```c
-    lcg_t  lcg_init(const char * buffer, size_t length)
-    lcg_t  lcg_init_raw(u32 init)
-    u32    lcg_next(lcg_t * randomp)
-    /* + standard suite */
+lcg_t  lcg_init(const char * buffer, size_t length)
+lcg_t  lcg_init_raw(u32 init)
+u32    lcg_next(lcg_t * randomp)
+/* + standard suite */
 ```
 
 A simple Linear Congruential Generator (LCG): extremely fast with low-quality randomness.
@@ -121,17 +121,17 @@ Cons:
 
 Example:
 ```c
-    lcg_t r[1] = {lcg_init_raw(initial)};
-    u32 rand = lcg_u32(r);
+lcg_t r[1] = {lcg_init_raw(initial)};
+u32 rand = lcg_u32(r);
 ```
 
 ### [lcg2.h](https://github.com/BasedProject/librandom/blob/master/source/lcg2.h)
 
 ```c
-    lcg2_t  lcg2_init(const char * buffer, size_t length)
-    lcg2_t  lcg2_init_raw(u64 init)
-    u64     lcg2_next(lcg2_t * randomp)
-    /* + standard suite */
+lcg2_t  lcg2_init(const char * buffer, size_t length)
+lcg2_t  lcg2_init_raw(u64 init)
+u64     lcg2_next(lcg2_t * randomp)
+/* + standard suite */
 ```
 
 Similar to lcg.h, except employs the 64-bit LCG described [here](https://nuclear.llnl.gov/CNP/rng/rngman/node4.html).
@@ -143,17 +143,17 @@ XXX what does this actually mean? why would someone use lcg2 over lcg or vica ve
 Example:
 
 ```c
-    lcg2_t r[1] = {lcg2_init_raw(initial)};
-    u64 rand = lcg2_u64(r);
+lcg2_t r[1] = {lcg2_init_raw(initial)};
+u64 rand = lcg2_u64(r);
 ```
 
 ### [pcg.h](https://github.com/BasedProject/librandom/blob/master/source/pcg.h)
 
 ```c
-    pcg_t  pcg_init(const char * buffer, size_t length)
-    pcg_t  pcg_init_raw(u64 init, u64 increment)    /* RANDOM_PCG_PRIME provided for increment */
-    u32    pcg_next(pcg_t * randomp)
-    /* + standard suite */
+pcg_t  pcg_init(const char * buffer, size_t length)
+pcg_t  pcg_init_raw(u64 init, u64 increment)    /* RANDOM_PCG_PRIME provided for increment */
+u32    pcg_next(pcg_t * randomp)
+/* + standard suite */
 ```
 
 A high-quality, small-state pseudo-random number generator based on the PCG family.
@@ -177,17 +177,17 @@ Use in general gameplay randomness, procedural content, Monte Carlo style sampli
 
 Example:
 ```c
-    pcg_t r[1] = {pcg_init_raw(initial, RANDOM_PCG_PRIME)};
-    u32 rand = pcg_u32(r);
+pcg_t r[1] = {pcg_init_raw(initial, RANDOM_PCG_PRIME)};
+u32 rand = pcg_u32(r);
 ```
 
 ### [xorshift.h](https://github.com/BasedProject/librandom/blob/master/source/xorshift.h)
 
 ```c
-    xorshift_t  xorshift_init(const char * buffer, size_t length)
-    xorshift_t  xorshift_init_raw(u32 init)
-    u32         xorshift_next(xorshift_t * randomp)
-    /* + standard suite */
+xorshift_t  xorshift_init(const char * buffer, size_t length)
+xorshift_t  xorshift_init_raw(u32 init)
+u32         xorshift_next(xorshift_t * randomp)
+/* + standard suite */
 ```
 
 A classic, extremely fast XorShift PRNG with small state and modest quality.
@@ -214,17 +214,17 @@ Cons:
 
 Example:
 ```c
-    xorshift_t r[1] = {xorshift_init_raw(initial)};
-    u32 rand = xorshift_u32(r);
+xorshift_t r[1] = {xorshift_init_raw(initial)};
+u32 rand = xorshift_u32(r);
 ```
 
 ### [xoroshiro.h](https://github.com/BasedProject/librandom/blob/master/source/xoroshiro.h)
 
 ```c
-    xoroshiro_t  xoroshiro_init(const char * buffer, size_t length)
-    xoroshiro_t  xoroshiro_init_raw(u128 init)
-    u64          xoroshiro_next(xoroshiro_t * randomp)
-    /* + standard suite */
+xoroshiro_t  xoroshiro_init(const char * buffer, size_t length)
+xoroshiro_t  xoroshiro_init_raw(u128 init)
+u64          xoroshiro_next(xoroshiro_t * randomp)
+/* + standard suite */
 ```
 
 A fast 128-bit state Xoroshiro-based PRNG with good quality and tiny footprint.
@@ -252,16 +252,16 @@ Cons:
 
 Example:
 ```c
-    xoroshiro_t r[1] = {xoroshiro_init_raw(initial)};
-    u32 rand = xoroshiro_u32(r);
+xoroshiro_t r[1] = {xoroshiro_init_raw(initial)};
+u32 rand = xoroshiro_u32(r);
 ```
 
 ### [splitmix.h](https://github.com/BasedProject/librandom/blob/master/source/splitmix.h)
 ```c
-    splitmix_t  splitmix_init(const char * buffer, size_t length)
-    splitmix_t  splitmix_init_raw(u64 init)
-    u64         splitmix_next(splitmix_t * randomp)
-    /* + standard suite */
+splitmix_t  splitmix_init(const char * buffer, size_t length)
+splitmix_t  splitmix_init_raw(u64 init)
+u64         splitmix_next(splitmix_t * randomp)
+/* + standard suite */
 ```
 
 A fast 64-bit SplitMix generator often used as a high-quality seeding/mixing PRNG.
@@ -285,16 +285,16 @@ Cons:
 
 Example:
 ```c
-    splitmix_t r[1] = {splitmix_init_raw(initial)};
-    u64 rand = splitmix_u64(r);
+splitmix_t r[1] = {splitmix_init_raw(initial)};
+u64 rand = splitmix_u64(r);
 ```
 
 ### [wy.h](https://github.com/BasedProject/librandom/blob/master/source/wy.h)
 ```c
-    wy_t  wy_init(const char * buffer, size_t length)
-    wy_t  wy_init_raw(u64 init)
-    u64   wy_next(wy_t * randomp)
-    /* + standard suite */
+wy_t  wy_init(const char * buffer, size_t length)
+wy_t  wy_init_raw(u64 init)
+u64   wy_next(wy_t * randomp)
+/* + standard suite */
 ```
 
 A wyhash-inspired PRNG variant (WyRandom) leveraging multiply-mix operations for speed and good distribution.
@@ -320,18 +320,18 @@ Use in general gameplay RNG, weight selection, shuffles, seed generation.
 
 Example:
 ```c
-    wy_t r[1] = {wy_init_raw(initial)};
-    u32 rand = wy_u32(r);
-    u64 rand = wy_u64(r);
+wy_t r[1] = {wy_init_raw(initial)};
+u32 rand = wy_u32(r);
+u64 rand = wy_u64(r);
 ```
 
 ### [photon.h](https://github.com/BasedProject/librandom/blob/master/source/photon.h)
 The reason this library exists.
 ```c
-    photon_t  photon_init(const char * buffer, size_t length)
-    photon_t  photon_init_raw(u128 init)
-    u32       photon_next(photon_t * randomp)
-    /* + standard suite */
+photon_t  photon_init(const char * buffer, size_t length)
+photon_t  photon_init_raw(u128 init)
+u32       photon_next(photon_t * randomp)
+/* + standard suite */
 ```
 
 PhotonSpin32: a ring-buffer generator inspired by SHISHUA, tuned for high throughput and large period.
@@ -359,16 +359,16 @@ Cons:
 
 Example:
 ```c
-    photon_t r[1] = {photon_init_raw(initial)};
-    u32 rand = photon_u32(r);
+photon_t r[1] = {photon_init_raw(initial)};
+u32 rand = photon_u32(r);
 ```
 
 ### [romuduo.h](https://github.com/BasedProject/librandom/blob/master/source/romuduo.h)
 ```c
-    romuduo_t  romuduo_init(const char * buffer, size_t length)
-    romuduo_t  romuduo_init_raw(u128 init)
-    u32        romuduo_next(romuduo_t * randomp)
-    /* + standard suite */
+romuduo_t  romuduo_init(const char * buffer, size_t length)
+romuduo_t  romuduo_init_raw(u128 init)
+u32        romuduo_next(romuduo_t * randomp)
+/* + standard suite */
 ```
 
 A member of the ROMU family (RomuDuo) emphasizing high speed and good statistical quality on modern CPUs.
@@ -392,8 +392,8 @@ Cons:
 
 Example:
 ```c
-    romuduo_t r[1] = {romuduo_init_raw(initial)};
-    u32 rand = romuduo_u32(r);
+romuduo_t r[1] = {romuduo_init_raw(initial)};
+u32 rand = romuduo_u32(r);
 ```
 
 ### [mt19937.h](https://github.com/BasedProject/librandom/blob/master/source/mt19937.h)
@@ -402,10 +402,10 @@ Example:
 See [mt19937.c](https://github.com/BasedProject/librandom/blob/master/source/mt19937.c) for full licensing.
 
 ```c
-    mt19937_t  mt19937_init(const char * buffer, size_t length)
-    mt19937_t  mt19937_init_raw(u32 init)
-    u32        mt19937_next(mt19937_t * randomp)
-    /* + standard suite */
+mt19937_t  mt19937_init(const char * buffer, size_t length)
+mt19937_t  mt19937_init_raw(u32 init)
+u32        mt19937_next(mt19937_t * randomp)
+/* + standard suite */
 ```
 
 See [here.](https://en.wikipedia.org/wiki/Mersenne_Twister)
@@ -424,43 +424,43 @@ Cons:
 
 Example:
 ```c
-    mt19937_t r[1] = {mt19937_init_raw(initial)};
-    u32 rand = mt19937_u32(r);
+mt19937_t r[1] = {mt19937_init_raw(initial)};
+u32 rand = mt19937_u32(r);
 ```
 
 ---
 
 ### [grand.h](https://github.com/BasedProject/librandom/blob/master/source/grand.h)
 ```c
-    grand_t  grand_init(const char * buffer, size_t length)
-    grand_t  grand_init_raw(u128 init)
+grand_t  grand_init(const char * buffer, size_t length)
+grand_t  grand_init_raw(u128 init)
 
-    u32    grand_u32(void)
-    u64    grand_u64(void)
-    u128   grand_u128(void)
-    s32    grand_s32(void)      /* also grand_i32 */
-    s64    grand_s64(void)      /* also grand_i64 */
-    s128   grand_s128(void)     /* also grand_i128 */
-    f32    grand_f32(void)
-    f64    grand_f64(void)
+u32    grand_u32(void)
+u64    grand_u64(void)
+u128   grand_u128(void)
+s32    grand_s32(void)      /* also grand_i32 */
+s64    grand_s64(void)      /* also grand_i64 */
+s128   grand_s128(void)     /* also grand_i128 */
+f32    grand_f32(void)
+f64    grand_f64(void)
 
-    u64    grand_range_u64(u64 low, u64 high)
-    i32    grand_range_i32(i32 low, i32 high)
-    i64    grand_range_i64(i64 low, i64 high)
-    f32    grand_range_f32(f32 low, f32 high)
-    f64    grand_range_f64(f64 low, f64 high)
+u64    grand_range_u64(u64 low, u64 high)
+i32    grand_range_i32(i32 low, i32 high)
+i64    grand_range_i64(i64 low, i64 high)
+f32    grand_range_f32(f32 low, f32 high)
+f64    grand_range_f64(f64 low, f64 high)
 
-    grand_t grand_value[1]           /* the global instance */
-    grand() macro                    /* expands to grand_u32() or grand_u64() per GRAND_WIDTH */
+grand_t grand_value[1]           /* the global instance */
+grand() macro                    /* expands to grand_u32() or grand_u64() per GRAND_WIDTH */
 ```
 
 A global stateless-call interface backed by a selectable generator. Defaults to `photon`.
 Override by defining `GRAND` and `GRAND_WIDTH` before including `grand.h`:
 
 ```c
-    #define GRAND      pcg
-    #define GRAND_WIDTH 32
-    #include "grand.h"
+#define GRAND      pcg
+#define GRAND_WIDTH 32
+#include "grand.h"
 ```
 
 Uses dynamic dispatch via a function pointer (`grand_next`), initialized lazily on first call.
@@ -471,9 +471,9 @@ Does not respect `ALIGN_RANDOM`.
 
 Example:
 ```c
-    u32 rand = grand_u32();
-    f32 t    = grand_range_f32(0.0f, 1.0f);
-    i32 n    = grand_range_i32(-10, 10);
+u32 rand = grand_u32();
+f32 t    = grand_range_f32(0.0f, 1.0f);
+i32 n    = grand_range_i32(-10, 10);
 ```
 
 ---
