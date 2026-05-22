@@ -1,70 +1,56 @@
 # librandom
 
+> such notable numbers as 795369128, 9225981519167521260 0.446480, and especially 2503112483. Some may also know 2974294238. 
+
 `librandom` provides randomness, hopefully that was unpredictable.
 
 This code is generally ripped and written for C23.
 
-see [Here](https://github.com/wallstop/unity-helpers) in `Runtime/Core/Random`.
+see [Here](https://github.com/wallstop/unity-helpers) in `Runtime/Core/Random`. // XXX
 
-- [librandom](#librandom)
-  * [Generalized](#generalized)
-  * [Headers](#headers)
-    + [float.h](#floath)
-    + [combine.h](#combineh)
-    + [lcg.h](#lcgh)
-    + [lcg2.h](#lcg2h)
-    + [pcg.h](#pcgh)
-    + [xorshift.h](#xorshifth)
-    + [xoroshiro.h](#xoroshiroh)
-    + [splitmix.h](#splitmixh)
-    + [wy.h](#wyh)
-    + [photon.h](#photonh)
-    + [romuduo.h](#romuduoh)
-    + [mt19937.h](#mt19937h)
-  * [Dieharder Performance](#dieharder-performance)
-    + [lcg](#lcg)
-    + [lcg2](#lcg2)
-    + [pcg](#pcg)
-    + [xorshift](#xorshift)
-    + [xoroshiro](#xoroshiro)
-    + [splitmix](#splitmix)
-    + [wy](#wy)
-    + [photon](#photon)
-    + [romuduo](#romuduo)
-    + [mt19937](#mt19937)
-  * [Copyright?](#copyright-)
-    + [librandom License](#librandom-license)
-    + [Wallstop MIT License](#wallstop-mit-license)
+* [Interface](#interface)
+* [Headers](#headers)
+  + [float.h](#floath)
+  + [combine.h](#combineh)
+  + [lcg.h](#lcgh)
+  + [lcg2.h](#lcg2h)
+  + [pcg.h](#pcgh)
+  + [xorshift.h](#xorshifth)
+  + [xoroshiro.h](#xoroshiroh)
+  + [splitmix.h](#splitmixh)
+  + [wy.h](#wyh)
+  + [photon.h](#photonh)
+  + [romuduo.h](#romuduoh)
+  + [mt19937.h](#mt19937h)
+* [Copyright?](#copyright-)
 
-## Generalized
-
-REQUIREMENTS:
-
-RATIFIED GENERIC INTERFACE:
+## Interface
 
 ```c
-<rng>_t rng_init(NULLABLE const char * buffer, size_t length);
-<type> <rng>_<type>(rng_t * rng);
-/* where <type> may be always u32, u64, u128, (signed versions), f32, f64. downcast as needed. */
-
-<type> random_<type>(<rng>); /* provided, note that this is not truly GENERIC. */
-/* <type> in this case is more expansive, only numeric types not included are >f80 and _ prefixed math types. */
-```c
-
-NONGENERIC, ALWAYS PROVIDED:
-
-```c
+// XXX
 <native> rng_init_raw(...);     /* usually u<size>, sometimes (read: just pcg) u64 u64 */
 <native> rng_next(rng_t * rng); /* <native> is dependent on the algo, usually u64/32  */
+
+
+// XXX
+rng_t rng_init([[nullable]] const char * buffer, size_t length);
+typename rng_typename(rng_t * rng);
+/* where <type> may be always u32, u64, u128, (signed versions), f32, f64. downcast as needed. */
+
+typename random_typename(<rng>); /* provided, note that this is not truly GENERIC. */
+/* <type> in this case is more expansive, only numeric types not included are >f80 and _ prefixed math types. */
 ```
 
-Replace rng_t with your algorithm of choice. See TOC. I recommend mt19937 or photon for games,
+Replace rng_t with your algorithm of choice.
+
+I recommend mt19937 or photon for games,
 avoid `mt19937` if you care about size constraints as it's a bit large (a few kilobytes in memory.)
 
 MT19937 is the most generally robust and widely used (for insecure means) psuedorandom algo that I'm aware of.
 
 Global Interface:
 
+```c
     #define GRAND photon // Not required. This is the default.
 	#include <random.h>
     
@@ -74,6 +60,7 @@ Global Interface:
 	TYPE grand_range_TYPE(rng_t * rng, TYPE small, TYPE big);
 	// range works for except 128-bit types. Inclusive.
 	// We use Lemire's unbiased multiply-high method for integer types.
+```
 
 
 None of these should ever be used in security sensitive contexts, don't use computers if you want security.
@@ -99,63 +86,83 @@ some algos will operate like ALIGN=64, with their minimum call threshold being u
 
 ## Headers
 
-This may be over in some places, but should cover basically everything.
-
 ### [lcg.h](https://github.com/BasedProject/librandom/blob/master/source/lcg.h)
 
+```c
     lcg_t  lcg_init(const char * buffer, size_t length)
     lcg_t  lcg_init_raw(u32 init)
     u32    lcg_next(lcg_t * randomp)
     /* + standard suite */
+```
 
 A simple Linear Congruential Generator (LCG): extremely fast with low-quality randomness.
 
-LCGs are among the oldest PRNGs. This configuration is fast and compact but exhibits correlations and
-shorter periods compared to modern generators. Best suited for cosmetic randomness where quality is not
+LCGs are among the oldest PRNGs.
+This configuration is fast and compact but exhibits correlations and
+shorter periods compared to modern generators.
+Best suited for cosmetic randomness where quality is not
 critical.
 
-Pros: Fast; trivial; tiny state; deterministic; serializable.
+Pros:
+* fast
+* trivial
+* tiny state
+* deterministic XXX
+* serializable
 
-Cons: Poor statistical quality vs. xoroshiro; noticeable patterns in some uses; not cryptographically secure.
+Cons:
+* poor statistical quality
+* noticeable patterns in some uses
+* not cryptographically secure
 
-Use in low impact things, like visual effects, quick throwaway randomness, or prototyping.
-
-Do not use in gameplay-critical logic, simulations, or fairness-sensitive systems.
+> [!TIP]
+> Use in low impact things, like visual effects, quick throwaway randomness, or prototyping.
+> Do not use in gameplay-critical logic, simulations, or fairness-sensitive systems.
 
 Example:
-
+```c
     lcg_t r[1] = {lcg_init_raw(initial)};
     u32 rand = lcg_u32(r);
+```
 
 ### [lcg2.h](https://github.com/BasedProject/librandom/blob/master/source/lcg2.h)
 
+```c
     lcg2_t  lcg2_init(const char * buffer, size_t length)
     lcg2_t  lcg2_init_raw(u64 init)
     u64     lcg2_next(lcg2_t * randomp)
     /* + standard suite */
+```
 
 Similar to lcg.h, except employs the 64-bit LCG described [here](https://nuclear.llnl.gov/CNP/rng/rngman/node4.html).
 
 Per Bret R. Beck and Eugene D. Brooks III.
 
+XXX what does this actually mean? why would someone use lcg2 over lcg or vica versa???
+
 Example:
 
+```c
     lcg2_t r[1] = {lcg2_init_raw(initial)};
     u64 rand = lcg2_u64(r);
+```
 
 ### [pcg.h](https://github.com/BasedProject/librandom/blob/master/source/pcg.h)
 
+```c
     pcg_t  pcg_init(const char * buffer, size_t length)
     pcg_t  pcg_init_raw(u64 init, u64 increment)    /* RANDOM_PCG_PRIME provided for increment */
     u32    pcg_next(pcg_t * randomp)
     /* + standard suite */
+```
 
 A high-quality, small-state pseudo-random number generator based on the PCG family.
 
 Implementation based off of the reference PCG Random, found here: https://www.pcg-random.org/index.html
 
 PCG (Permuted Congruential Generator) offers excellent statistical quality with very small state
-and extremely fast generation. This implementation uses a 64-bit state with 32-bit outputs and
+and extremely fast generation.
+This implementation uses a 64-bit state with 32-bit outputs and
 an increment (stream selector) to avoid overlapping sequences when constructing multiple instances.
 Note: `pcg_init_raw` takes two arguments rather than one; `X_PROVES_RULES` is set and `pcg_init`
 is defined manually.
@@ -164,126 +171,168 @@ Pros: Fast and allocation-free; suitable for gameplay hot paths.
 Great statistical quality for games and simulations; passes common PRNG test suites for 32-bit outputs.
 Deterministic and reproducible across platforms for identical seeds.
 
+XXX ^^^ ????
+
 Use in general gameplay randomness, procedural content, Monte Carlo style sampling.
 
 Example:
-
+```c
     pcg_t r[1] = {pcg_init_raw(initial, RANDOM_PCG_PRIME)};
     u32 rand = pcg_u32(r);
+```
 
 ### [xorshift.h](https://github.com/BasedProject/librandom/blob/master/source/xorshift.h)
 
+```c
     xorshift_t  xorshift_init(const char * buffer, size_t length)
     xorshift_t  xorshift_init_raw(u32 init)
     u32         xorshift_next(xorshift_t * randomp)
     /* + standard suite */
+```
 
 A classic, extremely fast XorShift PRNG with small state and modest quality.
 
-XorShift generators are known for their simplicity and speed. This variant operates on a 32-bit state and
-produces 32-bit outputs. It is suitable for lightweight, cosmetic randomness where maximum statistical
-rigor is not required.
+XorShift generators are known for their simplicity and speed.
+This variant operates on a 32-bit state and produces 32-bit outputs.
+It is suitable for lightweight,
+cosmetic randomness where maximum statistical rigor is not required.
 
-Pros: Very fast; tiny state footprint; deterministic; serializable.
+Pros:
+* very fast
+* tiny state footprint
+* deterministic
+* serializable.
 
-Cons: Poor statistical quality vs. newer generators; not cryptographically secure.
+Cons:
+* poor statistical quality
+* not cryptographically secure
 
-Use in effects, particles, jitter, or any light randomness in hot loops;
-short-lived simulations where ultimate quality is not required.
-
-Do not use in simulations or systems sensitive to subtle bias.
+> [!TIP]
+> Use in effects, particles, jitter, or any light randomness in hot loops;
+> short-lived simulations where ultimate quality is not required.
+> Do not use in simulations or systems sensitive to subtle bias.
 
 Example:
-
+```c
     xorshift_t r[1] = {xorshift_init_raw(initial)};
     u32 rand = xorshift_u32(r);
+```
 
 ### [xoroshiro.h](https://github.com/BasedProject/librandom/blob/master/source/xoroshiro.h)
 
+```c
     xoroshiro_t  xoroshiro_init(const char * buffer, size_t length)
     xoroshiro_t  xoroshiro_init_raw(u128 init)
     u64          xoroshiro_next(xoroshiro_t * randomp)
     /* + standard suite */
+```
 
 A fast 128-bit state Xoroshiro-based PRNG with good quality and tiny footprint.
 
 Xoroshiro family generators (here in a 64/64 configuration) offer an excellent balance between speed and
-quality for real-time applications. This implementation maintains two 64-bit state variables and returns
+quality for real-time applications.
+This implementation maintains two 64-bit state variables and returns
 64-bit outputs (`X_NEXT_WIDTH 64`).
 
-Pros: Very fast; suitable for gameplay and procedural generation;
-good statistical properties for non-crypto use; long period (~2^128−1);
-deterministic and reproducible across platforms.
+Pros:
+* very fast
+* suitable for gameplay and procedural generation
+* good statistical properties for non-crypto use
+* long period (~2^128−1);
+* deterministic
+* reproducible across platforms
 
-Cons: Not cryptographically secure; low bits may show weaker properties in some variants;
-use full width for mixing.
+Cons:
+* Not cryptographically secure
+* low bits may show weaker properties in some variants;
+* use full width for mixing
 
-Use in general-purpose game randomness, procedural placement, shuffles, noise seeding.
+> [!TIP]
+> Use in general-purpose game randomness, procedural placement, shuffles, noise seeding.
 
 Example:
-
+```c
     xoroshiro_t r[1] = {xoroshiro_init_raw(initial)};
     u32 rand = xoroshiro_u32(r);
+```
 
 ### [splitmix.h](https://github.com/BasedProject/librandom/blob/master/source/splitmix.h)
-
+```c
     splitmix_t  splitmix_init(const char * buffer, size_t length)
     splitmix_t  splitmix_init_raw(u64 init)
     u64         splitmix_next(splitmix_t * randomp)
     /* + standard suite */
+```
 
 A fast 64-bit SplitMix generator often used as a high-quality seeding/mixing PRNG.
 
 SplitMix64 is widely used to quickly generate well-distributed 64-bit values and as a seed source for
-other generators. Outputs 64-bit values (`X_NEXT_WIDTH 64`).
+other generators.
+Outputs 64-bit values (`X_NEXT_WIDTH 64`).
 
-Pros: Very fast; great as a hash/mixer and for seed generation;
-deterministic, portable, and simple.
+Pros:
+* very fast
+* great as a hash/mixer and for seed generation
+* deterministic
+* portable
+* simple.
 
-Cons: Not cryptographically secure.
+Cons:
+* not cryptographically secure.
 
-Use in producing seeds for other PRNGs, quick hash-like mixing, gameplay randomness.
+> ![TIP]
+> Use in producing seeds for other PRNGs, quick hash-like mixing, gameplay randomness.
 
 Example:
-
+```c
     splitmix_t r[1] = {splitmix_init_raw(initial)};
     u64 rand = splitmix_u64(r);
+```
 
 ### [wy.h](https://github.com/BasedProject/librandom/blob/master/source/wy.h)
-
+```c
     wy_t  wy_init(const char * buffer, size_t length)
     wy_t  wy_init_raw(u64 init)
     u64   wy_next(wy_t * randomp)
     /* + standard suite */
+```
 
 A wyhash-inspired PRNG variant (WyRandom) leveraging multiply-mix operations for speed and good distribution.
 
 Reference implementation: https://github.com/cocowalla/wyhash-dotnet/blob/master/src/WyHash/WyRng.cs
 
-Designed around 64-bit multiply-and-mix steps, this generator is fast and suitable for general-purpose
-randomness and hashing-like use cases. Outputs 64-bit values (`X_NEXT_WIDTH 64`).
+Designed around 64-bit multiply-and-mix steps,
+this generator is fast and suitable for general-purpose
+randomness and hashing-like use cases.
+Outputs 64-bit values (`X_NEXT_WIDTH 64`).
 It is not a cryptographic hash nor a CSPRNG.
 
-Pros: Fast and simple; good distribution for typical gameplay uses;
-deterministic across platforms.
+Pros:
+* fast
+* simple
+* good distribution for typical gameplay uses
+* deterministic across platforms.
 
-Cons: Less widely standardized than PCG/Xoroshiro.
+Cons:
+* Less widely standardized than PCG/Xoroshiro.
 
 Use in general gameplay RNG, weight selection, shuffles, seed generation.
 
 Example:
-
+```c
     wy_t r[1] = {wy_init_raw(initial)};
     u32 rand = wy_u32(r);
     u64 rand = wy_u64(r);
+```
 
 ### [photon.h](https://github.com/BasedProject/librandom/blob/master/source/photon.h)
 The reason this library exists.
-
+```c
     photon_t  photon_init(const char * buffer, size_t length)
     photon_t  photon_init_raw(u128 init)
     u32       photon_next(photon_t * randomp)
     /* + standard suite */
+```
 
 PhotonSpin32: a ring-buffer generator inspired by SHISHUA, tuned for high throughput and large period.
 
@@ -297,22 +346,30 @@ This generator produces batches of dynamically defined 32-bit values per round, 
 period (~2^512) and robust statistical performance. It shines when large streams are required,
 while still supporting deterministic state capture and serialization.
 
-Pros: Large state with excellent distribution; great for heavy simulation workloads.
+Pros:
+* excellent distribution
+* great for heavy simulation workloads
 
-Cons: Higher per-instance memory (~20×4 bytes by default);
-best used in procedural workloads that benefit from bulk generation and long non-overlapping streams.
+Cons:
+* large state
+
+> [!TIP]
+> Best used in procedural workloads that benefit from bulk generation
+> and long non-overlapping streams.
 
 Example:
-
+```c
     photon_t r[1] = {photon_init_raw(initial)};
     u32 rand = photon_u32(r);
+```
 
 ### [romuduo.h](https://github.com/BasedProject/librandom/blob/master/source/romuduo.h)
-
+```c
     romuduo_t  romuduo_init(const char * buffer, size_t length)
     romuduo_t  romuduo_init_raw(u128 init)
     u32        romuduo_next(romuduo_t * randomp)
     /* + standard suite */
+```
 
 A member of the ROMU family (RomuDuo) emphasizing high speed and good statistical quality on modern CPUs.
 
@@ -320,47 +377,61 @@ RomuDuo maintains two 64-bit state variables (stored as a `u128`) and uses rotat
 evolve the state. It is competitive with Xoroshiro-style generators in speed while exhibiting strong
 distribution for general use.
 
-Pros: Very fast; excellent for real-time usage;
-good statistical behavior for non-crypto applications;
-deterministic and reproducible across platforms.
+Pros:
+* very fast
+* excellent for real-time usage
+* good statistical behavior for non-crypto applications
+* deterministic and reproducible across platforms.
 
-Cons: Relatively newer family; choose proven options if organizational policy requires long-term validation.
+Cons:
+* Relatively newer family
+* choose proven options if organizational policy requires long-term validation.
 
-Use in gameplay RNG, procedural content generation, fast Monte Carlo sampling.
+> [!TIP]
+> Use in gameplay RNG, procedural content generation, fast Monte Carlo sampling.
 
 Example:
-
+```c
     romuduo_t r[1] = {romuduo_init_raw(initial)};
     u32 rand = romuduo_u32(r);
+```
 
 ### [mt19937.h](https://github.com/BasedProject/librandom/blob/master/source/mt19937.h)
 `BSD-3-clause -- Copyright 1997 - 2002, Makoto Matsumoto and Takuji Nishimura -- All rights reserved.`
 
 See [mt19937.c](https://github.com/BasedProject/librandom/blob/master/source/mt19937.c) for full licensing.
 
+```c
     mt19937_t  mt19937_init(const char * buffer, size_t length)
     mt19937_t  mt19937_init_raw(u32 init)
     u32        mt19937_next(mt19937_t * randomp)
     /* + standard suite */
+```
 
 See [here.](https://en.wikipedia.org/wiki/Mersenne_Twister)
 
-Super large period of 2^19937-1. Based on Mersenne primes. State is 624 `u32` words plus an index.
+Super large period of 2^19937-1.
+Based on Mersenne primes.
+State is 624 `u32` words plus an index.
 
-Pros: Generally robust; good for simulations.
+Pros:
+* generally robust
+* good for simulations
 
-Cons: Like all other PRNGs here, not for cryptographic use;
-not the one true solution to PRNGs, but close enough.
+Cons:
+* like all other PRNGs here, not for cryptographic use
+* not the one true solution to PRNGs, but close enough
 
 Example:
-
+```c
     mt19937_t r[1] = {mt19937_init_raw(initial)};
     u32 rand = mt19937_u32(r);
+```
 
 ---
 
 ### [grand.h](https://github.com/BasedProject/librandom/blob/master/source/grand.h)
-
+```c
     grand_t  grand_init(const char * buffer, size_t length)
     grand_t  grand_init_raw(u128 init)
 
@@ -381,24 +452,29 @@ Example:
 
     grand_t grand_value[1]           /* the global instance */
     grand() macro                    /* expands to grand_u32() or grand_u64() per GRAND_WIDTH */
+```
 
 A global stateless-call interface backed by a selectable generator. Defaults to `photon`.
 Override by defining `GRAND` and `GRAND_WIDTH` before including `grand.h`:
 
+```c
     #define GRAND      pcg
     #define GRAND_WIDTH 32
     #include "grand.h"
+```
 
 Uses dynamic dispatch via a function pointer (`grand_next`), initialized lazily on first call.
 Does not respect `ALIGN_RANDOM`.
 
-Note: `grand_range_u32` is not provided; use a direct generator instance if you need it.
+> [!NOTE]
+>  `grand_range_u32` is not provided; use a direct generator instance if you need it.
 
 Example:
-
+```c
     u32 rand = grand_u32();
     f32 t    = grand_range_f32(0.0f, 1.0f);
     i32 n    = grand_range_i32(-10, 10);
+```
 
 ---
 
