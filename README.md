@@ -20,7 +20,7 @@ see [Here](https://github.com/wallstop/unity-helpers) in `Runtime/Core/Random`. 
 | [xorshift](#xorshift)         |           simple |            4 |        fast |         poor |
 | [xoroshiro](#xoroshiro)       |           simple |           16 |        fast |         good |
 | [splitmix](#splitmix)         |           simple |            8 |        fast |         good |
-| [wy](#wy)                     |           simple |            8 |        fast |         good |
+| [wy](#wy)                     |         moderate |            8 |        fast |         good |
 | [photon](#photon)             |         moderate |          100 |        fast |        great |
 | [romuduo](#romuduo)           |           simple |           16 |        fast |        great |
 | [mt19937](#mt19937)           |          complex |         2500 |        slow |    excellent |
