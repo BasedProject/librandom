@@ -9,20 +9,21 @@ This code is generally ripped and written for C23.
 see [Here](https://github.com/wallstop/unity-helpers) in `Runtime/Core/Random`. // XXX
 
 * [Interface](#interface)
-* [Headers](#headers)
-  + [float.h](#floath)
-  + [combine.h](#combineh)
-  + [lcg.h](#lcgh)
-  + [lcg2.h](#lcg2h)
-  + [pcg.h](#pcgh)
-  + [xorshift.h](#xorshifth)
-  + [xoroshiro.h](#xoroshiroh)
-  + [splitmix.h](#splitmixh)
-  + [wy.h](#wyh)
-  + [photon.h](#photonh)
-  + [romuduo.h](#romuduoh)
-  + [mt19937.h](#mt19937h)
+* [RNGs](#rngs)
 * [Copyright?](#copyright-)
+
+| Name                          | Impl. Complexity | Memory class | Speed Class | Distribution |
+| :---------------------------- | ---------------: | -----------: | ----------: | -----------: |
+| [lcg](#lcg)                   |           simple |        small |        fast |         poor |
+| [lcg2](#lcg2)                 |           simple |        small |        fast |         poor |
+| [pcg](#pcg)                   |           simple |        small |        fast |         poor |
+| [xorshift](#xorshift)         |           simple |        small |        fast |         poor |
+| [xoroshiro](#xoroshiro)       |           simple |        small |        fast |         good |
+| [splitmix](#splitmix)         |           simple |        small |        fast |         good |
+| [wy](#wy)                     |           simple |        small |        fast |         good |
+| [photon](#photon)             |           simple |        large |        fast |        great |
+| [romuduo](#romuduo)           |          complex |        small |        fast |        great |
+| [mt19937](#mt19937)           |          complex |        small |        slow |    excellent |
 
 ## Interface
 
@@ -84,7 +85,7 @@ ALIGN=128: u32 u64 u128 = 12 calls, each >= 128 = 4.
 ```
 some algos will operate like ALIGN=64, with their minimum call threshold being u64.
 
-## Headers
+## RNGs
 
 ### [lcg.h](https://github.com/BasedProject/librandom/blob/master/source/lcg.h)
 
@@ -167,9 +168,13 @@ an increment (stream selector) to avoid overlapping sequences when constructing 
 Note: `pcg_init_raw` takes two arguments rather than one; `X_PROVES_RULES` is set and `pcg_init`
 is defined manually.
 
-Pros: Fast and allocation-free; suitable for gameplay hot paths.
-Great statistical quality for games and simulations; passes common PRNG test suites for 32-bit outputs.
-Deterministic and reproducible across platforms for identical seeds.
+Pros:
+* Fast
+* allocation-free
+* suitable for gameplay hot paths.
+* Great statistical quality for games and simulations
+* passes common PRNG test suites for 32-bit outputs.
+* Deterministic and reproducible across platforms for identical seeds.
 
 XXX ^^^ ????
 
@@ -244,8 +249,7 @@ Pros:
 
 Cons:
 * Not cryptographically secure
-* low bits may show weaker properties in some variants;
-* use full width for mixing
+* low bits may show weaker properties in some variants (use full width for mixing)
 
 > [!TIP]
 > Use in general-purpose game randomness, procedural placement, shuffles, noise seeding.
@@ -371,10 +375,13 @@ u32        romuduo_next(romuduo_t * randomp)
 /* + standard suite */
 ```
 
-A member of the ROMU family (RomuDuo) emphasizing high speed and good statistical quality on modern CPUs.
+A member of the ROMU family (RomuDuo) emphasizing high speed
+and good statistical quality on modern CPUs.
 
-RomuDuo maintains two 64-bit state variables (stored as a `u128`) and uses rotations and multiplies to
-evolve the state. It is competitive with Xoroshiro-style generators in speed while exhibiting strong
+RomuDuo maintains two 64-bit state variables (stored as a `u128`)
+and uses rotations and multiplies to
+evolve the state.
+It is competitive with Xoroshiro-style generators in speed while exhibiting strong
 distribution for general use.
 
 Pros:
