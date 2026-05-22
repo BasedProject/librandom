@@ -12,18 +12,18 @@ see [Here](https://github.com/wallstop/unity-helpers) in `Runtime/Core/Random`. 
 * [RNGs](#rngs)
 * [Copyright?](#copyright-)
 
-| Name                          | Impl. Complexity | Memory class | Speed Class | Distribution |
+| Name                          | Impl. Complexity | Bytes/Object | Speed Class | Distribution |
 | :---------------------------- | ---------------: | -----------: | ----------: | -----------: |
-| [lcg](#lcg)                   |           simple |        small |        fast |         poor |
-| [lcg2](#lcg2)                 |           simple |        small |        fast |         poor |
-| [pcg](#pcg)                   |           simple |        small |        fast |         poor |
-| [xorshift](#xorshift)         |           simple |        small |        fast |         poor |
-| [xoroshiro](#xoroshiro)       |           simple |        small |        fast |         good |
-| [splitmix](#splitmix)         |           simple |        small |        fast |         good |
-| [wy](#wy)                     |           simple |        small |        fast |         good |
-| [photon](#photon)             |           simple |        large |        fast |        great |
-| [romuduo](#romuduo)           |          complex |        small |        fast |        great |
-| [mt19937](#mt19937)           |          complex |        small |        slow |    excellent |
+| [lcg](#lcg)                   |           simple |            4 |        fast |         poor |
+| [lcg2](#lcg2)                 |           simple |            8 |        fast |         poor |
+| [pcg](#pcg)                   |           simple |          XXX |        fast |         poor |
+| [xorshift](#xorshift)         |           simple |            4 |        fast |         poor |
+| [xoroshiro](#xoroshiro)       |           simple |           16 |        fast |         good |
+| [splitmix](#splitmix)         |           simple |            8 |        fast |         good |
+| [wy](#wy)                     |           simple |            8 |        fast |         good |
+| [photon](#photon)             |         moderate |          100 |        fast |        great |
+| [romuduo](#romuduo)           |           simple |           16 |        fast |        great |
+| [mt19937](#mt19937)           |          complex |         2500 |        slow |    excellent |
 
 ## Interface
 
