@@ -6,8 +6,6 @@
 
 This code is generally ripped and written for C23.
 
-see [Here](https://github.com/wallstop/unity-helpers) in `Runtime/Core/Random`. // XXX
-
 * [Interface](#interface)
 * [RNGs](#rngs)
 * [Copyright?](#copyright-)
@@ -330,7 +328,6 @@ u64 rand = wy_u64(r);
 ```
 
 ### [photon.h](https://github.com/BasedProject/librandom/blob/master/source/photon.h)
-The reason this library exists.
 ```c
 photon_t  photon_init(const char * buffer, size_t length)
 photon_t  photon_init_raw(u128 init)
@@ -340,7 +337,14 @@ u32       photon_next(photon_t * randomp)
 
 PhotonSpin32: a ring-buffer generator inspired by SHISHUA, tuned for high throughput and large period.
 
-Reference: Will Stafford Parsons <https://github.com/wileylooper/photonspin>
+The reason this library exists.
+
+This used to be hosted on
+[Will Stafford Parsons github](https://github.com/wileylooper/photonspin),
+which has since been deleted.
+The only remaining references to it are this repo
+and [Wallstop's Unity Helpers](https://github.com/wallstop/unity-helpers)
+(`Runtime/Core/Random`).
 
 Block size defaults to 20 words; override with `RANDOM_PHOTON_BLOCK_SIZE` before including.
 Either induct `photon.c` into your program or recompile your library instance.
