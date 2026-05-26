@@ -366,7 +366,7 @@ u32 u    = grand_range_u32(1000, 10000);
 
 ## Copyright?
 
-All of these headers are marked as [`MIT License - Copyright 2025 wallstop`](https://mit-license.org/) unless otherwise specified or applicable to some larger domain, in which case the notice could be prunable. (i.e. very well known algorithms released to the public domain.) The text in this document is generally divined the initial project.
+All of these headers are marked as [`MIT License - Copyright 2025 wallstop`](https://mit-license.org/) unless otherwise specified or applicable to some larger domain, in which case the notice could be prunable. (i.e. very well known algorithms released to the public domain.)
 
 ### librandom License
 
